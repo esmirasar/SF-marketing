@@ -7,7 +7,7 @@ def user_table(connection: sqlite3.Connection):
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS  users (
     id INTEGER PRIMARY KEY,
-    telegram_id INTEGER,
+    telegram_id INTEGER UNIQUE,
     first_name TEXT NOT NULL)
     """)
 
