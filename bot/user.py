@@ -3,8 +3,7 @@ import aiogram
 import asyncio
 import sqlite3
 
-from aiogram import F
-from aiogram.types import Message, KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
+from aiogram import Bot, types
 from aiogram.filters import command
 from dotenv import load_dotenv
 
@@ -13,26 +12,24 @@ load_dotenv()
 
 
 TOKEN = os.getenv('BOT_TOKEN')
-
+bot = Bot(token=TOKEN)
 
 dispatcher = aiogram.Dispatcher()
 
 
-@dispatcher.message(command.Command('start'))
-async def command_start_handler(message: Message) -> None:
+@dispatcher.message(command.CommandStart())
+async def command_start_handler(message: types.Message) -> None:
 
-    key = [
-        [KeyboardButton(text='Регистрация')]
-    ]
-    keyboard = ReplyKeyboardMarkup(keyboard=key, resize_keyboard=True, input_field_placeholder='Регистрация')
-
-    await message.answer(f'Зарегистрируйтесь пожалуйста!', reply_markup=keyboard)
+    button = types.InlineKeyboardButton(text='Зарегистрироваться 🎉', callback_data='registration')
+    inline_keyboard = types.InlineKeyboardMarkup(inline_keyboard=[[button]])
+    await message.answer(text='Нажмите на кнопку "Зарегистрироваться"', reply_markup=inline_keyboard)
 
 
-@dispatcher.message(F.text.lower() == 'регистрация')
-async def registration(message: Message):
-    user_id = message.from_user.id
-    user_name = message.from_user.first_name
+@dispatcher.callback_query(lambda text: text.data == 'registration')
+async def registration(callback_query: types.CallbackQuery) -> None:
+    await callback_query.answer()
+    user_id = callback_query.from_user.id
+    user_name = callback_query.from_user.first_name
 
     connection = sqlite3.connect('../database/tg_bot.db')
     cursor = connection.cursor()
@@ -42,14 +39,13 @@ async def registration(message: Message):
         cursor.execute(f'INSERT INTO users (telegram_id, first_name) VALUES ({user_id}, "{user_name}")')
         connection.commit()
         connection.close()
-        await message.reply('Вы успешно зарегистрировались', reply_markup=ReplyKeyboardRemove())
+        await bot.send_message(user_id, 'Вы успешно зарегистрировались')
     else:
         connection.close()
-        await message.reply('Вы уже зарегистрированы в системе!', reply_markup=ReplyKeyboardRemove())
+        await bot.send_message(user_id, 'Вы уже зарегистрированы в системе!')
 
 
 async def main() -> None:
-    bot = aiogram.Bot(token=TOKEN)
     await dispatcher.start_polling(bot)
 
 
