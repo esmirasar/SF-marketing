@@ -1,24 +1,22 @@
 import os
 import asyncio
+import aiogram
 
 from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher, types
-from aiogram.filters.command import Command
+from aiogram.filters.command import Command, CommandObject
 
 load_dotenv()
 
 bot = Bot(token=os.getenv('BOT_TOKEN'))
 
-dp = Dispatcher()
+router = aiogram.Router()
 
 
-@dp.message(Command("flowers"))
-async def cmd_flowers(message: types.Message) -> None:
-    await message.answer("Растение сохранено")
+@router.message(Command("flowers"))
+async def cmd_flowers(message: types.Message, command: CommandObject) -> None:
+    name, schedule = command.args.split()
+
+    await message.answer(f'Введите цветок')
 
 
-async def main():
-    await dp.start_polling(bot)
-
-if __name__ == "__main__":
-    asyncio.run(main())
