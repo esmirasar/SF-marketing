@@ -1,17 +1,13 @@
-import sqlite3
-
-
-def flowers_table(connection: sqlite3.Connection):
+def flowers_table(connection):
     cursor = connection.cursor()
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS flowers(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        user_id INTEGER NOT NULL,
-        schedule INTEGER NOT NULL,
-        FOREIGN KEY (user_id)
-    REFERENCES users(id)
-    )
-    ''')
 
-    connection.commit()
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS flowers(
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    user_id INTEGER NOT NULL,
+    schedule INTEGER NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id))
+    """)
+
+    cursor.close()
