@@ -1,10 +1,11 @@
 import os
 import aiogram
-import sqlite3
 
 from aiogram import Bot, types
 from aiogram.filters import command
 from dotenv import load_dotenv
+
+from database import connection as con
 
 
 load_dotenv()
@@ -18,28 +19,22 @@ router = aiogram.Router()
 
 @router.message(command.CommandStart())
 async def command_start_handler(message: types.Message) -> None:
+    user_id = message.from_user.id
+    user_name = message.from_user.first_name
 
-    button = types.InlineKeyboardButton(text='Зарегистрироваться 🎉', callback_data='registration')
-    inline_keyboard = types.InlineKeyboardMarkup(inline_keyboard=[[button]])
-    await message.answer(text='Нажмите на кнопку "Зарегистрироваться"', reply_markup=inline_keyboard)
-
-
-@router.callback_query(lambda text: text.data == 'registration')
-async def registration(callback_query: types.CallbackQuery) -> None:
-    await callback_query.answer()
-    user_id = callback_query.from_user.id
-    user_name = callback_query.from_user.first_name
-
-    connection = sqlite3.connect('../database/tg_bot.db')
+    connection = con.connect_to_postgres()
     cursor = connection.cursor()
 
     cursor.execute(f'SELECT telegram_id FROM users WHERE telegram_id={user_id}')
     if not cursor.fetchone():
-        cursor.execute(f'INSERT INTO users (telegram_id, first_name) VALUES ({user_id}, "{user_name}")')
+        insert_query = 'INSERT INTO users (telegram_id, first_name) VALUES (%s, %s);'
+        insert_data = (user_id, user_name)
+
+        cursor.execute(insert_query, insert_data)
+
         connection.commit()
         connection.close()
         await bot.send_message(user_id, 'Вы успешно зарегистрировались')
     else:
         connection.close()
         await bot.send_message(user_id, 'Вы уже зарегистрированы в системе!')
-

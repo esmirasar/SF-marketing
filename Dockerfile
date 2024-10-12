@@ -5,6 +5,8 @@ WORKDIR /app
 COPY req.txt /app/req.txt
 RUN pip install -r req.txt
 
-COPY . .
+COPY . /app/
+
+ENV PYTHONPATH=/app
 
 CMD ["python", "bot/main.py"]
