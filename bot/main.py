@@ -14,8 +14,10 @@ dp = Dispatcher()
 
 async def main():
     import user
+    import flowers
 
     dp.include_router(user.router)
+    dp.include_router(flowers.router)
     await dp.start_polling(bot)
 
 
