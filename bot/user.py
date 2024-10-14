@@ -17,7 +17,7 @@ bot = Bot(token=TOKEN)
 router = aiogram.Router()
 
 
-@router.message(command.CommandStart())
+@router.message(command.Command('start'))
 async def command_start_handler(message: types.Message) -> None:
     user_id = message.from_user.id
     user_name = message.from_user.first_name
@@ -39,4 +39,4 @@ async def command_start_handler(message: types.Message) -> None:
 Я предназначен для напоминания вам о ваших цветах
 Введите пожалуйста команду /flowers для продолжения'''
 
-    await bot.send_message(user_id, text=text)
+    await message.reply(text)
