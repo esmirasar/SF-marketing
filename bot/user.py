@@ -34,7 +34,9 @@ async def command_start_handler(message: types.Message) -> None:
 
         connection.commit()
         connection.close()
-        await bot.send_message(user_id, 'Вы успешно зарегистрировались')
-    else:
-        connection.close()
-        await bot.send_message(user_id, 'Вы уже зарегистрированы в системе!')
+
+    text = '''Добро пожаловать в CheFlowers
+Я предназначен для напоминания вам о ваших цветах
+Введите пожалуйста команду /flowers для продолжения'''
+
+    await bot.send_message(user_id, text=text)
