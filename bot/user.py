@@ -1,11 +1,13 @@
 import os
 import aiogram
 
-from aiogram import Bot, types
-from aiogram.filters import command
 from dotenv import load_dotenv
 
+from aiogram import Bot, types
+from aiogram.filters import command
+
 from database import connection as con
+from inline_keyboards import get_menu_buttons, get_profile_buttons
 
 
 load_dotenv()
@@ -35,8 +37,30 @@ async def command_start_handler(message: types.Message) -> None:
         connection.commit()
         connection.close()
 
-    text = '''Добро пожаловать в CheFlowers
-Я предназначен для напоминания вам о ваших цветах
-Введите пожалуйста команду /flowers для продолжения'''
+    markup = get_menu_buttons()
 
-    await message.reply(text)
+    text = 'Вы находитесь в главном меню бота - CheFlowers!'
+    await message.delete()
+    await message.answer(text, reply_markup=markup)
+
+
+@router.callback_query(lambda call: call.data == 'profile')
+async def profile_list(callback_query: types.CallbackQuery):
+
+    await callback_query.answer()
+    await callback_query.message.delete()
+
+    markup = get_profile_buttons()
+
+    connection = con.connect_to_postgres()
+    cursor = connection.cursor()
+    cursor.execute(f'SELECT id FROM users WHERE telegram_id={callback_query.from_user.id}')
+    user_id = cursor.fetchone()[0]
+    cursor.execute(f'SELECT name, schedule FROM flowers WHERE user_id={user_id}')
+    flowers = cursor.fetchall()
+
+    cursor.close()
+    connection.close()
+
+    inline_for = f'\n{"-" * 10}\n'.join([f'Название: {data[0]}\nГрафик: Полив {data[1]} раз в неделю' for data in flowers])
+    await callback_query.message.answer(text=f'Список ваших цветов: \n{"-" * 10}\n{inline_for}', reply_markup=markup)
