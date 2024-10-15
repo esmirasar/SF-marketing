@@ -3,11 +3,11 @@ import aiogram
 
 from dotenv import load_dotenv
 from aiogram import Bot, types
-from aiogram.filters.command import Command
 from aiogram.fsm.context import FSMContext
 
 from scene import FlowerRegistration
 from database import connection
+from inline_keyboards import get_menu_buttons
 
 
 load_dotenv()
@@ -17,16 +17,18 @@ bot = Bot(token=os.getenv('BOT_TOKEN'))
 router = aiogram.Router()
 
 
-@router.message(Command("flowers"))
-async def cmd_flowers(message: types.Message, state: FSMContext) -> None:
-    await message.reply('Введите название цветка!')
+@router.callback_query(lambda call: call.data == 'create_flowers')
+async def cmd_flowers(callback_query: types.CallbackQuery, state: FSMContext) -> None:
+    await callback_query.message.delete()
+    await callback_query.answer()
+    await callback_query.message.answer('Введите название цветка!')
     await state.set_state(FlowerRegistration.name)
 
 
 @router.message(FlowerRegistration.name)
 async def process_flower_name(message: types.Message, state: FSMContext) -> None:
     await state.update_data(name=message.text)
-    await message.reply('Введите количество дней в неделю, которое необходимо для полива растения!')
+    await message.answer('Введите количество дней в неделю, которое необходимо для полива растения!')
     await state.set_state(FlowerRegistration.graph)
 
 
@@ -55,5 +57,7 @@ async def process_flower_graph(message: types.Message, state: FSMContext) -> Non
 Название цветка - {data["name"]}
 График - {data["graph"]}'''
 
-    await message.reply(message_data)
+    markup = get_menu_buttons()
+
+    await message.answer(message_data, reply_markup=markup)
     await state.clear()

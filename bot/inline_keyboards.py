@@ -13,8 +13,7 @@ def get_menu_buttons():
 def get_profile_buttons():
 
     markup = types.InlineKeyboardMarkup(inline_keyboard=[
-        [types.InlineKeyboardButton(text='Создание записи', callback_data='create_flowers'),
-         types.InlineKeyboardButton(text='Назад', callback_data='back_to_menu')]
+        [types.InlineKeyboardButton(text='Создание записи', callback_data='create_flowers')]
     ])
 
     return markup
