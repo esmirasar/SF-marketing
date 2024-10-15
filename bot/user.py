@@ -8,13 +8,13 @@ from aiogram.filters import command
 
 from database import connection as con
 from inline_keyboards import get_menu_buttons, get_profile_buttons
+from config import config
 
 
 load_dotenv()
 
 
-TOKEN = os.getenv('BOT_TOKEN')
-bot = Bot(token=TOKEN)
+bot = Bot(token=config.BOT_TOKEN)
 
 router = aiogram.Router()
 

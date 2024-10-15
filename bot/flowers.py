@@ -1,4 +1,3 @@
-import os
 import aiogram
 
 from dotenv import load_dotenv
@@ -8,11 +7,12 @@ from aiogram.fsm.context import FSMContext
 from scene import FlowerRegistration
 from database import connection
 from inline_keyboards import get_menu_buttons
+from config import config
 
 
 load_dotenv()
 
-bot = Bot(token=os.getenv('BOT_TOKEN'))
+bot = Bot(token=config.BOT_TOKEN)
 
 router = aiogram.Router()
 
