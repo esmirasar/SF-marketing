@@ -23,6 +23,7 @@ bot = Bot(token=config.BOT_TOKEN)
 router = aiogram.Router()
 
 scheduler = AsyncIOScheduler()
+scheduler.start()
 
 
 @router.callback_query(lambda call: call.data == 'create_flowers')
@@ -96,11 +97,10 @@ async def process_flower_graph(message: types.Message, state: FSMContext) -> Non
     await message.answer(message_data, reply_markup=markup_end)
     await state.clear()
 
-    # scheduler.add_job(
-    #     func=flowers_message,
-    #     trigger=CronTrigger(day=f'*/{data["graph"]}', hour=8, minute=0),
-    #     kwargs={'chat_id': message.chat.id, 'flower_name': data['name']})
-    # scheduler.start()
+    scheduler.add_job(
+        func=flowers_message,
+        trigger=CronTrigger(day=f'*/{data["graph"]}', hour=8, minute=0),
+        kwargs={'chat_id': message.chat.id, 'flower_name': data['name']})
 
 
 async def flowers_message(chat_id: int, flower_name: str):
