@@ -4,7 +4,7 @@ def flowers_table(connection):
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS flowers(
     id SERIAL PRIMARY KEY,
-    name TEXT NOT NULL,
+    name TEXT NOT NULL UNIQUE,
     user_id INTEGER NOT NULL,
     schedule INTEGER NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id))

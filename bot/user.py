@@ -63,4 +63,7 @@ async def profile_list(callback_query: types.CallbackQuery):
     connection.close()
 
     inline_for = f'\n{"-" * 10}\n'.join([f'Название: {data[0]}\nГрафик: Полив {data[1]} раз в неделю' for data in flowers])
-    await callback_query.message.answer(text=f'Список ваших цветов: \n{"-" * 10}\n{inline_for}', reply_markup=markup)
+    if flowers:
+        await callback_query.message.answer(text=f'Список ваших цветов: \n{"-" * 10}\n{inline_for}', reply_markup=markup)
+    else:
+        await callback_query.message.answer(text='В вашем профиле цветов нет', reply_markup=markup)
