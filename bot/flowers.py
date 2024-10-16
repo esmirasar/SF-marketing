@@ -28,7 +28,7 @@ async def cmd_flowers(callback_query: types.CallbackQuery, state: FSMContext) ->
 @router.message(FlowerRegistration.name)
 async def process_flower_name(message: types.Message, state: FSMContext) -> None:
     await state.update_data(name=message.text)
-    await message.answer('Введите количество дней в неделю, которое необходимо для полива растения!')
+    await message.answer('Введите число, через которое время необходимо полить растение.\n1 - ежедневно\n2 - каждые 2 дня и так далее')
     await state.set_state(FlowerRegistration.graph)
 
 
@@ -55,7 +55,7 @@ async def process_flower_graph(message: types.Message, state: FSMContext) -> Non
 
     message_data = f'''Данные успешно сохранены, вы ввели:
 Название цветка - {data["name"]}
-График - {data["graph"]}'''
+График - Каждый {data["graph"]} день'''
 
     markup = get_menu_buttons()
 
