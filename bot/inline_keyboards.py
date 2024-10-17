@@ -37,3 +37,12 @@ def get_timezone_buttons():
     ])
 
     return markup
+
+
+def accept_scheduler_flowers_button():
+
+    markup = types.InlineKeyboardMarkup(inline_keyboard=[
+        [types.InlineKeyboardButton(text='Нажмите для подтверждения полива', callback_data='profile')]
+    ])
+
+    return markup

@@ -15,7 +15,7 @@ from sqlalchemy import create_engine
 
 from scene import FlowerRegistration
 from database import connection
-from inline_keyboards import get_menu_buttons, get_profile_buttons
+from inline_keyboards import get_menu_buttons, get_profile_buttons, accept_scheduler_flowers_button
 from config import config
 
 
@@ -116,4 +116,8 @@ async def process_flower_graph(message: types.Message, state: FSMContext) -> Non
 
 
 async def flowers_message(chat_id: int, flower_name: str):
-    await bot.send_message(chat_id=chat_id, text=f'Доброе утро, вам необходимо полить цветок - {flower_name}')
+    await bot.send_message(
+        chat_id=chat_id,
+        text=f'Доброе утро, вам необходимо полить цветок - {flower_name}',
+        reply_markup=accept_scheduler_flowers_button()
+    )
