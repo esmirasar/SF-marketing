@@ -5,7 +5,8 @@ def user_table(connection):
     CREATE TABLE IF NOT EXISTS  users (
     id SERIAL PRIMARY KEY,
     telegram_id BIGINT UNIQUE,
-    first_name VARCHAR(255) NOT NULL)
+    first_name VARCHAR(255) NOT NULL,
+    time_zone VARCHAR(100) NOT NULL)
     """)
 
     cursor.execute("""
