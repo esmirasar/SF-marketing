@@ -1,12 +1,9 @@
-import os
 import aiogram
-from datetime import datetime, timezone, timedelta
 
 from dotenv import load_dotenv
 
 from aiogram import Bot, types
 from aiogram.filters import command
-from aiogram.fsm.context import FSMContext
 
 from database import connection as con
 from inline_keyboards import get_menu_buttons, get_profile_buttons, get_timezone_buttons
@@ -34,7 +31,7 @@ async def command_start_handler(message: types.Message) -> None:
         text = 'Вы находитесь в главном меню бота - CheFlowers!'
         await message.answer(text=text, reply_markup=get_menu_buttons())
     else:
-        text = 'Введите ваш часовой пояс в формате UTC±HH:MM. Например UTC+3:00.'
+        text = 'Выберете ваш часовой пояс из списка!!!'
         await message.answer(text=text, reply_markup=get_timezone_buttons())
 
 

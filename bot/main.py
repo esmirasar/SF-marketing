@@ -2,6 +2,12 @@ import asyncio
 
 from aiogram import Bot, Dispatcher, types, utils
 from aiogram.fsm.storage.memory import MemoryStorage
+
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
+
+from sqlalchemy import create_engine
+
 from dotenv import load_dotenv
 
 from config import config
@@ -14,6 +20,14 @@ bot = Bot(token=config.BOT_TOKEN)
 storage = MemoryStorage()
 dp = Dispatcher(storage=storage)
 
+URI = f'postgresql://{config.DB_USER}:{config.DB_PASSWORD}@{config.DB_HOST}:{config.DB_PORT}/{config.DB_NAME}'
+engine = create_engine(URI)
+db_store = {
+    'default': SQLAlchemyJobStore(engine=engine, tablename='flower_schedulers')
+}
+scheduler = AsyncIOScheduler(jobstores=db_store)
+scheduler.start()
+
 
 async def set_bot_commands(tg_bot: Bot):
     commands = [
@@ -24,6 +38,9 @@ async def set_bot_commands(tg_bot: Bot):
 
 async def on_startup(dispatcher: Dispatcher):
     await set_bot_commands(bot)
+
+    for job in scheduler.get_jobs():
+        job.resume()
 
 
 async def main():
