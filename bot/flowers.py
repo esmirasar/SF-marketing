@@ -110,7 +110,8 @@ async def process_flower_graph(message: types.Message, state: FSMContext) -> Non
 
     scheduler.add_job(
         func=flowers_message,
-        trigger=CronTrigger(day=f'*/{data["graph"]}', hour=8 + int(user_tz), minute=0),
+        trigger=CronTrigger(day=f'*/{data["graph"]}', hour=8 - int(user_tz), minute=0),
+        # trigger=CronTrigger(second=0),
         kwargs={'chat_id': message.chat.id, 'flower_name': data['name']}
     )
 
