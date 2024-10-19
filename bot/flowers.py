@@ -9,10 +9,13 @@ from aiogram.fsm.context import FSMContext
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
+from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
+
+from sqlalchemy import create_engine
 
 from scene import FlowerRegistration
 from database import connection
-from inline_keyboards import get_menu_buttons, get_profile_buttons
+from inline_keyboards import get_menu_buttons, get_profile_buttons, accept_scheduler_flowers_button
 from config import config
 
 
@@ -22,7 +25,12 @@ bot = Bot(token=config.BOT_TOKEN)
 
 router = aiogram.Router()
 
-scheduler = AsyncIOScheduler()
+URI = f'postgresql://{config.DB_USER}:{config.DB_PASSWORD}@{config.DB_HOST}:{config.DB_PORT}/{config.DB_NAME}'
+engine = create_engine(URI)
+db_store = {
+    'default': SQLAlchemyJobStore(engine=engine, tablename='flower_schedulers')
+}
+scheduler = AsyncIOScheduler(jobstores=db_store)
 scheduler.start()
 
 
@@ -71,6 +79,9 @@ async def process_flower_graph(message: types.Message, state: FSMContext) -> Non
     cursor.execute(f'SELECT id FROM users WHERE telegram_id={message.from_user.id}')
     user_id = cursor.fetchone()[0]
 
+    cursor.execute(f'SELECT time_zone FROM users WHERE telegram_id={message.from_user.id}')
+    user_tz = cursor.fetchone()[0]
+
     query = 'INSERT INTO flowers (name, user_id, schedule) VALUES(%s, %s, %s)'
     insert_data = (data['name'].title(), user_id, data['graph'])
 
@@ -99,9 +110,15 @@ async def process_flower_graph(message: types.Message, state: FSMContext) -> Non
 
     scheduler.add_job(
         func=flowers_message,
-        trigger=CronTrigger(day=f'*/{data["graph"]}', hour=8, minute=0),
-        kwargs={'chat_id': message.chat.id, 'flower_name': data['name']})
+        trigger=CronTrigger(day=f'*/{data["graph"]}', hour=8 - int(user_tz), minute=0),
+        # trigger=CronTrigger(second=0),
+        kwargs={'chat_id': message.chat.id, 'flower_name': data['name']}
+    )
 
 
 async def flowers_message(chat_id: int, flower_name: str):
-    await bot.send_message(chat_id=chat_id, text=f'Доброе утро, вам необходимо полить цветок - {flower_name}')
+    await bot.send_message(
+        chat_id=chat_id,
+        text=f'Доброе утро, вам необходимо полить цветок - {flower_name}',
+        reply_markup=accept_scheduler_flowers_button()
+    )
