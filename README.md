@@ -1,5 +1,11 @@
 # SF_MARKETING
 
+Клонирование проекта:
+
+```text
+git clone https://github.com/esmirasar/SF-marketing.git
+```
+
 ---
 
 env example
@@ -29,3 +35,9 @@ DB_NAME - Название базы данных
 DB_HOST - для доккера его локальное название, для локального подключения localhost
 
 DB_PORT - для доккера 5432 для локального подключения 5435
+
+Запуск проекта, с учётом, что добавлен .env файл и установлен доккер
+
+```
+docker compose up --build
+```
